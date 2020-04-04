@@ -4,7 +4,7 @@
   "description": "Paprika recipe exporter",
   "main": "index.js",
   "scripts": {
-    "build": "npx tsc --outDir bin"
+    "build": "npm install && npx tsc --outDir bin"
   },
   "bin": {
     "paprika-exporter": "./bin/Main.js"
@@ -28,7 +28,6 @@
     "inquirer": "^7.1.0",
     "js-yaml": "^3.13.1",
     "node-fetch": "^2.6.0",
-    "ora": "^4.0.3",
     "slugify": "^1.4.0",
     "winston": "^3.2.1"
   }

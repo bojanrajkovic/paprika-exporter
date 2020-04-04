@@ -15,7 +15,6 @@ Until I manage to publish this to NPM:
 ```shell
 git clone https://github.com/bojanrajkovic/paprika-exporter
 cd paprika-exporter
-npm install
 npm run build
 npm install -g
 paprika-exporter -h
