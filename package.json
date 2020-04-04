@@ -1,0 +1,35 @@
+{
+  "name": "paprika-exporter",
+  "version": "0.99.0",
+  "description": "Paprika recipe exporter",
+  "main": "index.js",
+  "scripts": {
+    "build": "npx tsc --outDir bin"
+  },
+  "bin": {
+    "paprika-exporter": "./bin/Main.js"
+  },
+  "author": "Bojan Rajkovic <brajkovic@coderinserepeat.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/core-js": "^2.5.3",
+    "@types/inquirer": "^6.5.0",
+    "@types/js-yaml": "^3.12.3",
+    "@types/node": "^13.9.5",
+    "@types/node-fetch": "^2.5.5",
+    "typescript": "^3.8.3"
+  },
+  "dependencies": {
+    "xkeychain": "^0.0.6",
+    "chalk": "^3.0.0",
+    "commander": "^5.0.0",
+    "core-js": "^3.6.4",
+    "gray-matter": "^4.0.2",
+    "inquirer": "^7.1.0",
+    "js-yaml": "^3.13.1",
+    "node-fetch": "^2.6.0",
+    "ora": "^4.0.3",
+    "slugify": "^1.4.0",
+    "winston": "^3.2.1"
+  }
+}
