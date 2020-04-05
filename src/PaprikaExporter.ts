@@ -10,12 +10,14 @@ import { ImportableRecipe } from "./ImportableRecipe"
 import { MarkdownRecipe } from "./MarkdownRecipe"
 import { PaprikaApi } from "./PaprikaApi"
 import { Recipe } from "./Recipe"
+import { pairWise } from "./Util"
+import { duration, DurationInputObject } from "moment"
 
 export class PaprikaExporter {
     private readonly api: PaprikaApi
     private readonly markdownTargetDirectory: string
     private readonly importableTargetDirectory: string
-    
+
     constructor(api: PaprikaApi, markdownTargetDirectory: string, importableTargetDirectory: string) {
         this.api = api
         this.markdownTargetDirectory = markdownTargetDirectory
@@ -62,7 +64,7 @@ export class PaprikaExporter {
 
         info(`Fetching recipes that need update`)
         const recipesToUpdate = await Promise.all(recipesNeedingUpdate.map(this.api.getRecipe.bind(this.api)))
-        
+
         info(`Updating recipe categories`)
         for (const recipe of recipesToUpdate) {
             recipe.categories = recipe.categories.map(cat => categories[cat])
@@ -81,7 +83,7 @@ export class PaprikaExporter {
 
     private async writePaprikaRecipeFile(importableTargetDirectory: string, recipe: Recipe) {
         const paprikaRecipePath = join(importableTargetDirectory, `${recipe.name}.paprikarecipe`)
-        
+
         let photoData: string | undefined
         let photoHash: string | undefined
 
@@ -89,7 +91,7 @@ export class PaprikaExporter {
             photoData = (await (await fetch(recipe.image_url)).blob()).toString("base64")
             photoHash = createHash("sha256").update(Buffer.from(photoData, "base64")).digest().toString("hex").toUpperCase()
         }
-        
+
         info(`Writing importable recipe ${recipe.name} to ${paprikaRecipePath}`)
         const importableRecipe: ImportableRecipe = {
             photos: [],
@@ -125,37 +127,52 @@ export class PaprikaExporter {
         writeFileSync(paprikaRecipePath, gzip)
     }
 
+    private getISO8601Duration(durationString: string) {
+        if (!durationString && !durationString.trim()) {
+            return undefined
+        }
+
+        // Parse the duration.
+        const pieces = pairWise(durationString.split(" "));
+        let durationValues: any = {}
+        for (const piece of pieces) {
+            durationValues[piece[1]] = piece[0]
+        }
+        const dur = duration(<DurationInputObject>durationValues)
+
+        return dur.isValid() ? dur.toISOString() : undefined
+    }
+
     private async writeRecipe(markdownTargetDirectory: string, recipe: Recipe) {
         const recipePath = join(markdownTargetDirectory, `${slugify(recipe.name, { lower: true, strict: true })}.md`)
-        
+
         info(`Writing recipe ${recipe.name} to ${recipePath}`)
         const frontmatter: MarkdownRecipe = {
             layout: "recipe",
             uid: recipe.uid,
             hash: recipe.hash,
             name: recipe.name,
+            image_url: recipe.image_url,
             ingredients: recipe.ingredients.split(/\n+/),
             servings: recipe.servings,
             nutritional_info: recipe.nutritional_info,
             cook_time: recipe.cook_time,
+            iso_cook_time: this.getISO8601Duration(recipe.cook_time),
             prep_time: recipe.prep_time,
+            iso_prep_time: this.getISO8601Duration(recipe.prep_time),
             total_time: recipe.total_time,
+            iso_total_time: this.getISO8601Duration(recipe.total_time),
             source_url: recipe.source_url,
             difficulty: <"Easy"|"Medium"|"Hard">recipe.difficulty,
             rating: recipe.rating,
-            tags: recipe.categories
+            tags: recipe.categories,
+            description: recipe.description.trim()
         }
 
         const { description, directions, notes } = recipe
         let content = ""
 
-        if (description && description.trim()) {
-            content += `${description}
-            `
-        }
-
-        content += `
-## Directions
+        content += `## Directions
 
 ${directions}
         `.trimEnd()
@@ -175,7 +192,7 @@ ${notes}
     private readExistingRecipes(markdownTargetDirectory: string): Map<string, MarkdownRecipe> {
         const map = new Map<string, MarkdownRecipe>()
         const recipeFiles = readdirSync(markdownTargetDirectory).filter(val => extname(val) == ".md").map(val => join(markdownTargetDirectory, val))
-        
+
         for (const recipeFile of recipeFiles) {
             const recipe = <MarkdownRecipe>matter.read(recipeFile).data
             map.set(recipe.uid, recipe)

@@ -20,15 +20,15 @@
     "typescript": "^3.8.3"
   },
   "dependencies": {
-    "xkeychain": "^0.0.6",
-    "chalk": "^3.0.0",
     "commander": "^5.0.0",
     "core-js": "^3.6.4",
     "gray-matter": "^4.0.2",
     "inquirer": "^7.1.0",
     "js-yaml": "^3.13.1",
+    "moment": "^2.24.0",
     "node-fetch": "^2.6.0",
     "slugify": "^1.4.0",
-    "winston": "^3.2.1"
+    "winston": "^3.2.1",
+    "xkeychain": "^0.0.6"
   }
 }
