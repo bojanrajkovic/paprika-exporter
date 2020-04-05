@@ -169,7 +169,7 @@ export class PaprikaExporter {
             description: recipe.description.trim()
         }
 
-        const { description, directions, notes } = recipe
+        const { directions, notes } = recipe
         let content = ""
 
         content += `## Directions
