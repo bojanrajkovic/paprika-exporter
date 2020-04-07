@@ -1,8 +1,15 @@
 {
-  "name": "paprika-exporter",
-  "version": "0.99.0",
+  "name": "@bojanrajkovic/paprika-exporter",
+  "version": "1.0.0",
   "description": "Paprika recipe exporter",
-  "main": "index.js",
+  "main": "Main.ts",
+  "private": false,
+  "homepage": "https://github.com/bojanrajkovic/paprika-exporter#readme",
+  "keywords": ["paprika"],
+  "bugs": {
+    "url": "https://github.com/bojanrajkovic/paprika-exporter/issues"
+  },
+  "repository": "github:bojanrajkovic/paprika-exporter",
   "scripts": {
     "build": "npm install && npx tsc --outDir bin"
   },
