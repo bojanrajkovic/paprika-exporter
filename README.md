@@ -10,12 +10,11 @@ A tool to export recipes from a Paprika Sync account into 2 formats:
 
 ## Usage
 
-Until I manage to publish this to NPM:
-
 ```shell
-git clone https://github.com/bojanrajkovic/paprika-exporter
-cd paprika-exporter
-npm run build
-npm install -g
+npm install -g @bojanrajkovic/paprika-exporter
 paprika-exporter -h
 ```
+
+`paprika-explorer` takes 2 parameters: the first is a directory where
+Markdown-format recipes should be writen, and the second is a directory where
+importable Paprika-format recipes should be written.
