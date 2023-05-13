@@ -4,7 +4,7 @@ import * as matter from "gray-matter"
 import fetch from "node-fetch"
 import { basename, extname, join } from "path"
 import slugify from "slugify"
-import { info } from "winston"
+import { info, warn } from "winston"
 import { gzipSync } from "zlib"
 import { ImportableRecipe } from "./ImportableRecipe"
 import { MarkdownRecipe } from "./MarkdownRecipe"
@@ -12,6 +12,7 @@ import { PaprikaApi } from "./PaprikaApi"
 import { Recipe } from "./Recipe"
 import { pairWise } from "./Util"
 import { duration, DurationInputObject } from "moment"
+import _ from "lodash"
 
 export class PaprikaExporter {
     private readonly api: PaprikaApi
@@ -82,14 +83,26 @@ export class PaprikaExporter {
     }
 
     private async writePaprikaRecipeFile(importableTargetDirectory: string, recipe: Recipe) {
-        const paprikaRecipePath = join(importableTargetDirectory, `${recipe.name}.paprikarecipe`)
+        const recipeBasename = basename(recipe.name)
+        const paprikaRecipePath = join(importableTargetDirectory, `${recipeBasename}.paprikarecipe`)
 
         let photoData: string | undefined
         let photoHash: string | undefined
 
         if (recipe.image_url && recipe.image_url.trim()) {
-            photoData = (await (await fetch(recipe.image_url)).blob()).toString("base64")
-            photoHash = createHash("sha256").update(Buffer.from(photoData, "base64")).digest().toString("hex").toUpperCase()
+            try {
+                photoData = (await (await fetch(recipe.image_url)).blob()).toString("base64")
+                photoHash = createHash("sha256").update(Buffer.from(photoData, "base64")).digest().toString("hex").toUpperCase()
+            } catch (e) {
+                if (e instanceof Error) {
+                    warn('Failed to download photo data for recipe', {
+                        stack: e.stack,
+                        message: e.message
+                    })
+                } else [
+                    warn('Something went wrong, but could not find error', { error: e })
+                ]
+            }
         }
 
         info(`Writing importable recipe ${recipe.name} to ${paprikaRecipePath}`)
@@ -185,7 +198,7 @@ ${notes}
             `.trimEnd()
         }
 
-        content = matter.stringify(content, frontmatter)
+        content = matter.stringify(content, _(frontmatter).omitBy(_.isNil).value())
         writeFileSync(recipePath, content)
     }
 
